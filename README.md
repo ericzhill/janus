@@ -16,6 +16,30 @@ Janus looks both to the past and the future. Likewise, this package is designed 
 - Reversible: every forward change has a corresponding backward path
 - Simple: keep the API and operational model straightforward
 
+## Core concept: directional, versioned transitions
+Janus models every schema change as an explicit transition between two semantic versions. Each transition is stored in a file whose name encodes the "from" and "to" versions separated by a directional arrow.
+
+- Format: v<from_semver> -> v<to_semver>.sql
+- Example (forward): v1.0.0 -> v1.1.0.sql contains the DDL to move from 1.0.0 to 1.1.0
+- Example (reverse): v1.1.0 -> v1.0.0.sql contains the DDL to rollback from 1.1.0 to 1.0.0
+
+Notes
+- Transitions can skip versions. You might have v1.1.0 -> v1.3.0.sql without requiring a v1.2.0 waypoint.
+- Multiple paths can exist to reach the same target. Janus can choose an available path that satisfies the move you requested.
+
+A few simple examples
+- Direct neighbors:
+  - v1.0.0 -> v1.1.0.sql
+  - v1.1.0 -> v1.0.0.sql
+- Skipping versions:
+  - v1.1.0 -> v1.3.0.sql
+  - v1.3.0 -> v1.1.0.sql
+- Multiple paths to v2.0.0 from v1.0.0:
+  - Path A: v1.0.0 -> v1.1.0.sql, v1.1.0 -> v1.2.0.sql, v1.2.0 -> v2.0.0.sql
+  - Path B: v1.0.0 -> v1.3.0.sql, v1.3.0 -> v2.0.0.sql
+
+We’ll keep the README focused on the concept. More detailed, end-to-end examples will live in TUTORIAL.md.
+
 ## Getting started
 This repository currently focuses on the core concept and interface for versioned schema transitions. Typical usage looks like:
 
@@ -36,4 +60,8 @@ Early-stage. README describes the intent and direction; API and examples will fo
 - Propose clear, minimal PRs that move the core forward
 
 ## License
-TBD
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
